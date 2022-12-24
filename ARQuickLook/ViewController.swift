@@ -1,19 +1,26 @@
 
 import UIKit
+import QuickLook
 
-class ViewController: UIViewController,
-  UITableViewDataSource, UITableViewDelegate {
+class ViewController: UIViewController {
+  // MARK: - Properties
   
-  @IBOutlet var tableView: UITableView!
-
   let modelNames = ["Teapot", "Gramophone", "Pig"]
   var modelImages = [UIImage]()
   var modelIndex = 0;
+  @IBOutlet var tableView: UITableView!
+  
+  // MARK: - Lifeecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view, typically from a nib.
     
+    configureUI()
+  }
+  
+  // MARK: - Helper Functions
+  func configureUI() {
     // Store Images
     for modelName in modelNames {
       if let modelImage = UIImage(named: "\(modelName).jpg") {
@@ -24,8 +31,12 @@ class ViewController: UIViewController,
     tableView.dataSource = self
     tableView.delegate = self
     tableView.reloadData()
+    
   }
   
+}
+// MARK: - Tableview delegates and datasource
+extension ViewController: UITableViewDataSource, UITableViewDelegate {
   // MARK: - UITableViewDataSource
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -37,7 +48,7 @@ class ViewController: UIViewController,
     
     cell.modelImage.image = modelImages[indexPath.row]
     cell.modelName.text = modelNames[indexPath.row]
-
+    
     return cell
   }
   
@@ -45,9 +56,24 @@ class ViewController: UIViewController,
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     modelIndex = indexPath.row
+    
+    let controller = QLPreviewController()
+    controller.dataSource = self
+    controller.delegate = self
+    present(controller, animated: true)
   }
-  
-  // MARK: - QLPreviewControllerDataSource
-  
 }
 
+// MARK: - QLPreviewControllerDataSource
+
+extension ViewController: QLPreviewControllerDelegate, QLPreviewControllerDataSource {
+  func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+    return 1
+  }
+  
+  func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+    let url = Bundle.main.url(forResource: modelNames[modelIndex], withExtension: "usdz")!
+    
+    return url as QLPreviewItem
+  }
+}
