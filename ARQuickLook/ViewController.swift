@@ -5,6 +5,7 @@ import QuickLook
 class ViewController: UIViewController {
   // MARK: - Properties
   
+  let qlPreviewController = QLPreviewController()
   let modelNames = ["Teapot", "Gramophone", "Pig"]
   var modelImages = [UIImage]()
   var modelIndex = 0;
@@ -27,6 +28,9 @@ class ViewController: UIViewController {
         modelImages.append(modelImage)
       }
     }
+    
+    qlPreviewController.dataSource = self
+    qlPreviewController.delegate = self
     
     tableView.dataSource = self
     tableView.delegate = self
@@ -57,10 +61,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     modelIndex = indexPath.row
     
-    let controller = QLPreviewController()
-    controller.dataSource = self
-    controller.delegate = self
-    present(controller, animated: true)
+    present(qlPreviewController, animated: true)
   }
 }
 
